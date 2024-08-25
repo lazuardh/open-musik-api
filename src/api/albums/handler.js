@@ -1,33 +1,95 @@
 class AlbumsHandler {
-    constructor(service){
-        this._service = service;
+  constructor(service) {
+    this._service = service;
+  }
+
+  postAlbumHandler(request, h) {
+    try {
+      const { name = "unnamed", year } = request.payload;
+
+      const albumId = this._service.addAlbum({ name, year });
+
+      const response = h.response({
+        status: "success",
+        data: {
+          albumId,
+        },
+      });
+
+      response.code(201);
+      return response;
+    } catch (error) {
+      const response = h.response({
+        status: "fail",
+        message: error.message,
+      });
+
+      response.code(400);
+      return response;
     }
+  }
 
-    postAlbumHandler(request, h){
-        const { name = 'unnamed', year } = request.payload;
+  getAlbumHandlerById(request, h) {
+    try {
+      const { id } = request.params;
+      const album = this._service.getAlbumByid(id);
 
-        const albumId = this._service.addAlbum({ name, year });
+      return {
+        status: "success",
+        data: {
+          album,
+        },
+      };
+    } catch (error) {
+      const response = h.response({
+        status: "fail",
+        message: error.message,
+      });
+      response.code(404);
+      return response;
+    }
+  }
 
+  putAlbumHandlerById(request, h) {
+    try {
+      const { id } = request.params;
+
+      this._service.editAlbumById(id, request.payload);
+
+      return {
+        status: "success",
+        message: "Album berhasil diperbarui",
+      };
+    } catch (error) {
+      const response = h.response({
+        status: "fail",
+        message: error.message,
+      });
+
+      response.code(404);
+      return response;
+    }
+  }
+
+  deleteAlbumHandler(request, h) {
+    try {
+      const { id } = request.params;
+      this._service.deleteAlbumById(id);
+
+      return {
+        status: "succcess",
+        message: "Album berhasil dihapus",
+      };
+    } catch (error) {
         const response = h.response({
-            status: 'success',
-            data: {
-                albumId,
-            }
+            status: 'fail',
+            message: error.message,
         });
 
-        response.code(201);
+        response.code(404);
         return response;
     }
-
-    getAlbumHandlerById(){
-
-    }
-
-    putAlbumHandlerById(){
-
-    }
-
-    deleteAlbumHandler(){
-
-    }
+  }
 }
+
+module.exports = AlbumsHandler;
