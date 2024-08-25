@@ -1,94 +1,63 @@
+const autoBind = require('auto-bind');
+
 class AlbumsHandler {
-  constructor(service) {
+  constructor(service, validator) {
     this._service = service;
+    this._validator = validator;
+
+    autoBind(this); // mem-bind nilai this untuk seluruh method sekaligus
   }
 
-  postAlbumHandler(request, h) {
-    try {
-      const { name = "unnamed", year } = request.payload;
+  async postAlbumHandler(request, h) {
+     this._validator.validateAlbumPayload(request.payload);
 
-      const albumId = this._service.addAlbum({ name, year });
+    const { name = "unnamed", year } = request.payload;
+    const albumId = await this._service.addAlbum({ name, year });
 
-      const response = h.response({
-        status: "success",
-        data: {
-          albumId,
-        },
-      });
+    const response = h.response({
+      status: 'success',
+      message: 'album berhasil ditambahkan',
+      data: {
+        albumId,
+      },
+    });
 
-      response.code(201);
-      return response;
-    } catch (error) {
-      const response = h.response({
-        status: "fail",
-        message: error.message,
-      });
-
-      response.code(400);
-      return response;
-    }
+    response.code(201);
+    return response;
   }
 
-  getAlbumHandlerById(request, h) {
-    try {
-      const { id } = request.params;
-      const album = this._service.getAlbumByid(id);
+  async getAlbumHandlerById(request) {
+    const { id } = request.params;
+      const album = await this._service.getAlbumById(id);
 
       return {
-        status: "success",
+        status: 'success',
         data: {
           album,
         },
       };
-    } catch (error) {
-      const response = h.response({
-        status: "fail",
-        message: error.message,
-      });
-      response.code(404);
-      return response;
-    }
   }
 
-  putAlbumHandlerById(request, h) {
-    try {
-      const { id } = request.params;
+  async putAlbumHandlerById(request) {
+    this._validator.validateAlbumPayload(request.payload);
+    const { id } = request.params;
 
-      this._service.editAlbumById(id, request.payload);
+    await this._service.editAlbumById(id, request.payload);
+
+    return {
+      status: "success",
+      message: "Album berhasil diperbarui",
+    };
+  }
+
+  async deleteAlbumHandler(request) {
+    const { id } = request.params;
+      await this._service.deleteAlbumById(id);
 
       return {
         status: "success",
-        message: "Album berhasil diperbarui",
-      };
-    } catch (error) {
-      const response = h.response({
-        status: "fail",
-        message: error.message,
-      });
-
-      response.code(404);
-      return response;
-    }
-  }
-
-  deleteAlbumHandler(request, h) {
-    try {
-      const { id } = request.params;
-      this._service.deleteAlbumById(id);
-
-      return {
-        status: "succcess",
         message: "Album berhasil dihapus",
       };
-    } catch (error) {
-        const response = h.response({
-            status: 'fail',
-            message: error.message,
-        });
-
-        response.code(404);
-        return response;
-    }
   }
 }
 
