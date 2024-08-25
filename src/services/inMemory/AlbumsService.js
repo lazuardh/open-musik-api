@@ -56,7 +56,7 @@ class AlbumsService {
     const index = this._albums.findIndex((album) => album.id === id);
 
     if (index === -1) {
-        throw new NotFoundError('Gagal memperbaharui album. Id tidak ditemukan');
+        throw new NotFoundError('Gagal menghapus album. Id tidak ditemukan');
     }
 
     this._albums.splice(index, 1);

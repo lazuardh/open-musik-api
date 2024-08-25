@@ -6,9 +6,13 @@ const Handlebars = require("handlebars");
 const path = require("path");
 const AlbumValidator = require("./validator/albums");
 const ClientError = require("./exceptions/ClientError");
+const songs = require('./api/songs');
+const SongsService = require('./services/inMemory/SongsService');
+const SongValidator = require('./validator/songs');
 
 const init = async () => {
   const albumsService = new AlbumsService();
+  const songsService = new SongsService();
 
   const server = Hapi.server({
     port: 5000,
@@ -47,6 +51,14 @@ const init = async () => {
       service: albumsService,
       validator: AlbumValidator,
     },
+  });
+
+  await server.register({
+    plugin: songs,
+    options: {
+      service: songsService,
+      validator: SongValidator,
+    }
   });
 
   server.ext('onPreResponse', (request, h) => {
