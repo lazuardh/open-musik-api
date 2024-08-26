@@ -1,6 +1,8 @@
+require('dotenv').config();
+
 const Hapi = require("@hapi/hapi");
 const albums = require("./api/albums");
-const AlbumsService = require("./services/inMemory/AlbumsService");
+const AlbumsService = require("./services/postgres/AlbumsService");
 const Vision = require("@hapi/vision");
 const Handlebars = require("handlebars");
 const path = require("path");
@@ -15,8 +17,8 @@ const init = async () => {
   const songsService = new SongsService();
 
   const server = Hapi.server({
-    port: 5000,
-    host: "localhost",
+    port: process.env.PORT,
+    host: process.env.HOST,
     routes: {
       cors: {
         origin: ["*"],
