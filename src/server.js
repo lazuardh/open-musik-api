@@ -60,20 +60,17 @@ const init = async () => {
       },
     },
     {
-      plugin: users,
-      options: {
-        service: usersService,
-        validator: UserValidator,
-      },
-    },
-  ]);
-
-  await server.register([
-    {
       plugin: songs,
       options: {
         service: songsService,
         validator: SongValidator,
+      },
+    },
+    {
+      plugin: users,
+      options: {
+        service: usersService,
+        validator: UserValidator,
       },
     },
   ]);
